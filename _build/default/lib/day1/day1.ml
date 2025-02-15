@@ -1,1 +1,0 @@
-let result_p1=0
