@@ -28,9 +28,10 @@ Exempel : n=69
 Kvadrathörnet efter: (8+1) ^2 = 81. Avstånd mellan 81-65 = 16 (2*8)?
 Hörnet nere till vänster efter = 73 dvs 65+8
 
-Avstånd till 
-:
+Tal uppåt 1, 4, 15, 34, 61, 96, 139
+    diff    3  11  19  27  35  43
+              8   8   8   8   8
 
-r = sqrt n
-n0 = r*r 
-d = r - n0
+Tal åt vänster 1, 6, 19, 40, 69, 106, 151
+    diff         5  13  21  29  37  45
+                   8   8   8   8   8
