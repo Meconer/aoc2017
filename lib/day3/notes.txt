@@ -21,7 +21,15 @@ Om heltalsdelen av roten ur ett tal är jämnt så ligger
 talet på vänster eller nedre sida. Annars på höger eller
 översidan.
 
-Avståndet till centrum, dvs platsen för '1':
+Avståndet till centrum, dvs platsen för '1' för talet n:
+
+Exempel : n=69
+"Hörnet" innan: int(sqrt(n))  = 8 (dvs senaste hörnet är 64. eg 65)
+Kvadrathörnet efter: (8+1) ^2 = 81. Avstånd mellan 81-65 = 16 (2*8)?
+Hörnet nere till vänster efter = 73 dvs 65+8
+
+Avstånd till 
+:
 
 r = sqrt n
 n0 = r*r 
