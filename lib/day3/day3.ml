@@ -23,4 +23,32 @@ let numbers_straight limit start_diff =
 
 let top_number, dist = numbers_straight input_no 1
 let result_p1 = dist + input_no - top_number
+
+type coord = {x:int;y:int}
+type cell = {pos:coord;value:int}
+type direction = Up|Left|Down|Right
+
+let get_pos pos dir =
+  match dir with
+  | Up -> {pos with y = pos.y-1}
+  | Down -> {pos with y = pos.y+1}
+  | Left -> {pos with x = pos.x-1}
+  | Right -> {pos with x = pos.x-1}
+
+let get_turn_pos pos direction =
+  let turn_dir = match direction with 
+  | Right -> Up
+  | Up -> Left
+  | Left -> Down
+  | Down -> Right in
+  let turn_pos = get_pos pos turn_dir in
+  turn_pos
+
+
+let build_cells limit =
+  let rec loop acc pos direction =
+    let turn_pos = get_turn_pos pos direction in
+    let tp_cell_opt = find_cell_at acc turn_pos in
+
+
 let result_p2 = 0
