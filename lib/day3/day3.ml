@@ -44,7 +44,7 @@ let get_pos pos dir =
   | North -> { pos with y = pos.y - 1 }
   | South -> { pos with y = pos.y + 1 }
   | West -> { pos with x = pos.x - 1 }
-  | East -> { pos with x = pos.x - 1 }
+  | East -> { pos with x = pos.x + 1 }
   | Northwest -> { x = pos.x - 1; y = pos.y - 1 }
   | Northeast -> { x = pos.x + 1; y = pos.y - 1 }
   | Southwest -> { x = pos.x - 1; y = pos.y + 1 }
@@ -86,7 +86,7 @@ let add_neighbours cells pos =
 let build_cells limit =
   let rec loop acc npos direction =
     let value = add_neighbours acc npos in
-    if value > limit then (List.rev acc, value)
+    if value > limit then value
     else
       let cell = { pos = npos; value } in
       let n_acc = cell :: acc in
@@ -105,4 +105,4 @@ let build_cells limit =
   in
   loop [ { pos = { x = 0; y = 0 }; value = 1 } ] { x = 1; y = 0 } East
 
-let result_p2 = 0
+let result_p2 = build_cells input_no
