@@ -2,4 +2,4 @@
 
 (library
  (name day7)
- (libraries core))
+ (libraries core re))
