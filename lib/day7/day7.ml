@@ -1,16 +1,15 @@
 open Core
 
-let is_example = true
+let is_example = false
 
 let filename =
-  if is_example then "lib/day7/example.txt" else "lib/day6/input.txt"
+  if is_example then "lib/day7/example.txt" else "lib/day7/input.txt"
 
-type node_t = { n : string; weight : int; subs : node_t list }
+type node_t = { name : string; weight : int; subs : string list option }
 
 let aoc_input = In_channel.read_lines filename
 
 let pattern =
-  let open Re in
   Re.(
     compile
       (seq
@@ -47,10 +46,19 @@ let parse_line line =
       Some (name, weight, children)
   | None -> None
 
-let nodes = ref (Map.empty (module String) )
+let has_parent_set = ref (Set.empty (module String))
+let node_names = ref (Set.empty (module String))
 
-List.iter aoc_input ~f:
+let () =
+  List.iter aoc_input ~f:(fun line ->
+      let node_name, _, subs = Option.value_exn (parse_line line) in
+      node_names := Set.add !node_names node_name;
+      match subs with
+      | None -> ()
+      | Some subs ->
+          List.iter subs ~f:(fun s ->
+              has_parent_set := Set.add !has_parent_set s))
 
-
-let result_p1 = 0
-let result_p2 = 0
+let root_node = Set.diff !node_names !has_parent_set
+let result_p1 = List.hd_exn (Set.to_list root_node)
+let result_p2 = ""
