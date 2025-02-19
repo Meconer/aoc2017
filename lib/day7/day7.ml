@@ -61,4 +61,44 @@ let () =
 
 let root_node = Set.diff !node_names !has_parent_set
 let result_p1 = List.hd_exn (Set.to_list root_node)
+let nodes = ref (Map.empty (module String))
+
+let () =
+  List.iter aoc_input ~f:(fun line ->
+      let node_name, weight, subs_opt = Option.value_exn (parse_line line) in
+      Printf.printf "%s (%d)\n" node_name weight;
+      let node = { name = node_name; weight; subs = subs_opt } in
+      nodes := Map.set !nodes ~key:node_name ~data:node;
+      match subs_opt with
+      | None -> ()
+      | Some l ->
+          Printf.printf "  ->";
+          List.iter l ~f:(fun s -> Printf.printf "  %s" s);
+          Printf.printf "\n")
+
+let is_balanced sub_list =
+  let rec loop lst =
+    match lst with
+    | [] | _ :: [] -> true
+    | a :: b :: rest -> if a <> b then false else loop (b :: rest)
+  in
+  loop sub_list
+
+let rec calc_weights node_name : int =
+  let node = Map.find_exn !nodes node_name in
+  let sub_weight =
+    match node.subs with
+    | None -> 0
+    | Some subs ->
+        let sub_weights = List.map subs ~f:calc_weights in
+        if not (is_balanced sub_weights) then (
+          List.iter subs ~f:(fun sub ->
+              Printf.printf "  %s %d " sub (Map.find_exn !nodes sub).weight);
+          Printf.printf "\n");
+        List.fold subs ~init:0 ~f:(fun acc n ->
+            let sub_weight = calc_weights n in
+            acc + sub_weight)
+  in
+  node.weight + sub_weight
+
 let result_p2 = ""
