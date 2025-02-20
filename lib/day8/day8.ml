@@ -36,6 +36,7 @@ let cond_of_s s =
   | _ -> failwith "Illegal condition"
 
 let regs = ref (Map.empty (module String))
+let max_val = ref 0
 
 let parse_line line =
   let r =
@@ -77,6 +78,7 @@ let solve_p1 lines =
             | Dec -> op_reg_val - expr.op_val
           in
           regs := Map.set !regs ~key:expr.op_reg ~data:res;
+          if res > !max_val then max_val := res;
           loop rest)
         else loop rest
   in
@@ -88,4 +90,4 @@ let solve_p1 lines =
   max_elt
 
 let result_p1 = solve_p1 aoc_input
-let result_p2 = 0
+let result_p2 = !max_val
