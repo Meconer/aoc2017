@@ -84,6 +84,24 @@ let is_balanced sub_list =
   in
   loop sub_list
 
+let analyze_subs subs sub_weights =
+  let min_elt =
+    List.foldi sub_weights
+      ~init:(List.hd_exn sub_weights, 0)
+      ~f:(fun idx (min_el, min_idx) el ->
+        if el < min_el then (el, idx) else (min_el, min_idx))
+  in
+  let max_elt =
+    List.foldi sub_weights
+      ~init:(List.hd_exn sub_weights, 0)
+      ~f:(fun idx (max_el, max_idx) el ->
+        if el > max_el then (el, idx) else (max_el, max_idx))
+  in
+  let no_of_min = List.count sub_weights ~f:(fun el -> el = fst min_elt) in
+  let diff_el = if no_of_min = 1 then min_elt else max_elt in
+  Printf.printf "Diff: %d at %d\n" (fst diff_el) (snd diff_el);
+  ()
+
 let rec calc_weights node_name : int =
   let node = Map.find_exn !nodes node_name in
   let sub_weight =
@@ -92,9 +110,12 @@ let rec calc_weights node_name : int =
     | Some subs ->
         let sub_weights = List.map subs ~f:calc_weights in
         if not (is_balanced sub_weights) then (
+          analyze_subs subs sub_weights;
+          Printf.printf "Name: %s - " node_name;
+          List.iter sub_weights ~f:(fun sw -> Printf.printf "%d, " sw);
           List.iter subs ~f:(fun sub ->
               Printf.printf "  %s %d " sub (Map.find_exn !nodes sub).weight);
-          Printf.printf "\n");
+          Printf.printf "#\n");
         List.fold subs ~init:0 ~f:(fun acc n ->
             let sub_weight = calc_weights n in
             acc + sub_weight)
