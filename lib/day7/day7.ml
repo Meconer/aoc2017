@@ -66,15 +66,17 @@ let nodes = ref (Map.empty (module String))
 let () =
   List.iter aoc_input ~f:(fun line ->
       let node_name, weight, subs_opt = Option.value_exn (parse_line line) in
-      Printf.printf "%s (%d)\n" node_name weight;
+      (* Printf.printf "%s (%d)\n" node_name weight; *)
       let node = { name = node_name; weight; subs = subs_opt } in
-      nodes := Map.set !nodes ~key:node_name ~data:node;
-      match subs_opt with
-      | None -> ()
-      | Some l ->
-          Printf.printf "  ->";
-          List.iter l ~f:(fun s -> Printf.printf "  %s" s);
-          Printf.printf "\n")
+      nodes := Map.set !nodes ~key:node_name ~data:node);
+  ()
+(* match subs_opt with
+   | None -> ()
+   | Some l ->
+       Printf.printf "  ->";
+       List.iter l ~f:(fun s -> Printf.printf "  %s" s);
+       Printf.printf "\n"
+       ) *)
 
 let is_balanced sub_list =
   let rec loop lst =
@@ -100,6 +102,7 @@ let analyze_subs subs sub_weights =
   let no_of_min = List.count sub_weights ~f:(fun el -> el = fst min_elt) in
   let diff_el = if no_of_min = 1 then min_elt else max_elt in
   Printf.printf "Diff: %d at %d\n" (fst diff_el) (snd diff_el);
+  Printf.printf "Diff el: %s\n" (List.nth_exn subs (snd diff_el));
   ()
 
 let rec calc_weights node_name : int =
@@ -108,18 +111,20 @@ let rec calc_weights node_name : int =
     match node.subs with
     | None -> 0
     | Some subs ->
-        let sub_weights = List.map subs ~f:calc_weights in
-        if not (is_balanced sub_weights) then (
-          analyze_subs subs sub_weights;
-          Printf.printf "Name: %s - " node_name;
-          List.iter sub_weights ~f:(fun sw -> Printf.printf "%d, " sw);
-          List.iter subs ~f:(fun sub ->
-              Printf.printf "  %s %d " sub (Map.find_exn !nodes sub).weight);
-          Printf.printf "#\n");
+        (* let sub_weights = List.map subs ~f:calc_weights in
+           if not (is_balanced sub_weights) then (
+             analyze_subs subs sub_weights;
+             Printf.printf "Name: %s - " node_name;
+             List.iter sub_weights ~f:(fun sw -> Printf.printf "%d, " sw);
+             List.iter subs ~f:(fun sub ->
+                 Printf.printf "  %s %d " sub (Map.find_exn !nodes sub).weight);
+             Printf.printf "#\n"); *)
         List.fold subs ~init:0 ~f:(fun acc n ->
             let sub_weight = calc_weights n in
             acc + sub_weight)
   in
   node.weight + sub_weight
 
-let result_p2 = ""
+(* Running the calc_weights function with the analyze_subs function within shows that the differing
+   element is the ycbgx which's weight should be lowered from 1531 to 1526 *)
+let result_p2 = 1526
