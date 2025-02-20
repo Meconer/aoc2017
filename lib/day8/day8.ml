@@ -62,7 +62,6 @@ let solve_p1 lines =
     match lines with
     | [] -> ()
     | line :: rest ->
-        Printf.printf "%s\n" line;
         let expr = parse_line line in
         let cond_reg_val =
           match Map.find !regs expr.cond_reg with None -> 0 | Some v -> v
