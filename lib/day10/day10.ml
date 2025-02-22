@@ -55,4 +55,6 @@ let unmoved_lst =
   @ List.sub lst ~pos:0 ~len:start
 
 let result_p1 = List.hd_exn unmoved_lst * List.nth_exn unmoved_lst 1
+let parse_input_p2 s = String.to_list s |> List.map ~f:int_of_char
+let l_seq_p2 = parse_input_p2 aoc_input
 let result_p2 = 0
