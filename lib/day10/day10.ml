@@ -61,24 +61,32 @@ let l_seq_p2 = parse_input_p2 aoc_input @ e_seq
 let n_arr = Array.init 256 ~f:(fun i -> i)
 
 let solve_p2 l_seq n_arr =
+  let arr_len = Array.length n_arr in
   let rec loop skip_size curr_idx l_seq =
-    Printf.printf "Skip_size %d\n" skip_size;
     match l_seq with
     | [] -> n_arr
     | move_len :: rest ->
         let rec rev_loop idx cnt =
           if cnt = 0 then ()
           else
-            let i1 = idx mod 256 in
-            let i2 = (move_len - idx) mod 256 in
+            let i1 = idx mod arr_len in
+            let i2 = (move_len - idx - 1) mod arr_len in
             let v1 = Array.get n_arr i1 in
             let v2 = Array.get n_arr i2 in
+            Printf.printf "i1, i2, v1, v2 : %d %d %d %d\n" i1 i2 v1 v2;
+            Array.iter n_arr ~f:(fun el -> Printf.printf "%d, " el);
+            Printf.printf "\n";
             Array.set n_arr i1 v2;
             Array.set n_arr i2 v1;
-            rev_loop ((idx + 1) mod 256) (cnt - 1)
+            Array.iter n_arr ~f:(fun el -> Printf.printf "%d, " el);
+            Printf.printf "\n";
+            rev_loop ((idx + 1) mod arr_len) (cnt - 1)
         in
         let _ = rev_loop curr_idx (move_len / 2) in
-        loop ((skip_size + 1) mod 256) ((curr_idx + move_len) mod 256) rest
+        loop
+          ((skip_size + 1) mod arr_len)
+          ((curr_idx + move_len) mod arr_len)
+          rest
   in
 
   loop 0 0 l_seq
