@@ -60,32 +60,33 @@ let e_seq = [ 17; 31; 73; 47; 23 ]
 let l_seq_p2 = parse_input_p2 aoc_input @ e_seq
 let n_arr = Array.init 256 ~f:(fun i -> i)
 
+let print_arr arr =
+  Array.iter arr ~f:(fun el -> Printf.printf "%d," el);
+  Printf.printf "\n"
+
 let solve_p2 l_seq n_arr =
   let arr_len = Array.length n_arr in
   let rec loop skip_size curr_idx l_seq =
     match l_seq with
     | [] -> n_arr
     | move_len :: rest ->
+        Printf.printf "ML %d ; SS %d ; CI %d\n" move_len skip_size curr_idx;
         let rec rev_loop idx cnt =
           if cnt = 0 then ()
           else
-            let i1 = idx mod arr_len in
-            let i2 = (move_len - idx - 1) mod arr_len in
+            let i1 = (curr_idx + idx) mod arr_len in
+            let i2 = (curr_idx + move_len - idx - 1) % arr_len in
             let v1 = Array.get n_arr i1 in
             let v2 = Array.get n_arr i2 in
-            Printf.printf "i1, i2, v1, v2 : %d %d %d %d\n" i1 i2 v1 v2;
-            Array.iter n_arr ~f:(fun el -> Printf.printf "%d, " el);
-            Printf.printf "\n";
             Array.set n_arr i1 v2;
             Array.set n_arr i2 v1;
-            Array.iter n_arr ~f:(fun el -> Printf.printf "%d, " el);
-            Printf.printf "\n";
+            Printf.printf "C: %d  i1=%d  i2=%d\n" cnt i1 i2;
+            print_arr n_arr;
             rev_loop ((idx + 1) mod arr_len) (cnt - 1)
         in
-        let _ = rev_loop curr_idx (move_len / 2) in
-        loop
-          ((skip_size + 1) mod arr_len)
-          ((curr_idx + move_len) mod arr_len)
+        let _ = rev_loop 0 (move_len / 2) in
+        loop (skip_size + 1)
+          ((curr_idx + move_len + skip_size) mod arr_len)
           rest
   in
 
