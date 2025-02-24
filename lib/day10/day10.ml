@@ -68,7 +68,6 @@ let calc_sparse_hash l_seq_p2 =
   loop 0 0 64 n_arr
 
 let hex_of_int n = Printf.sprintf "%02x" n
-let sparse_hash = calc_sparse_hash l_seq_p2
 let combine lst = List.fold lst ~init:0 ~f:(fun acc el -> acc lxor el)
 
 let calc_dense_hash sparse_hash =
@@ -86,4 +85,11 @@ let calc_dense_hash sparse_hash =
   List.fold hex_list ~init:"" ~f:(fun acc n -> acc ^ hex_of_int n)
 
 let test_seq = parse_input_p2 ""
-let result_p2 = 0
+
+let get_hash s =
+  let l_seq_p2 = parse_input_p2 s @ e_seq in
+  let sparse_hash = calc_sparse_hash l_seq_p2 in
+  let dense_hash = calc_dense_hash sparse_hash in
+  dense_hash
+
+let result_p2 = get_hash aoc_input
