@@ -23,8 +23,8 @@ let dir_vec dir =
   | NE -> { q = 1; r = -1; s = 0 }
   | SE -> { q = 1; r = 0; s = -1 }
   | S -> { q = 0; r = 1; s = -1 }
-  | SW -> { q = -1; r = 0; s = 1 }
-  | NW -> { q = -1; r = 1; s = 0 }
+  | SW -> { q = -1; r = 1; s = 0 }
+  | NW -> { q = -1; r = 0; s = 1 }
 
 let move pos dir =
   let delta = dir_vec dir in
@@ -41,7 +41,23 @@ let get_dist_of_moves s =
   let rec loop pos moves =
     match moves with [] -> pos | dir :: rest -> loop (move pos dir) rest
   in
-  loop { q = 0; r = 0; s = 0 } move_list
+  let p0 = { q = 0; r = 0; s = 0 } in
+  let p1 = loop p0 move_list in
+  dist p0 p1
 
-let result_p1 = 0
-let result_p2 = 0
+let result_p1 = get_dist_of_moves aoc_input
+
+let get_max_dist s =
+  let move_list = String.split s ~on:',' |> List.map ~f:dir_of_str in
+  let p0 = { q = 0; r = 0; s = 0 } in
+  let rec loop max_dist pos moves =
+    match moves with
+    | [] -> max_dist
+    | dir :: rest ->
+        let n_pos = move pos dir in
+        let max_dist = max max_dist (dist p0 n_pos) in
+        loop max_dist n_pos rest
+  in
+  loop 0 p0 move_list
+
+let result_p2 = get_max_dist aoc_input
