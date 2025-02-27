@@ -29,5 +29,23 @@ let parse_line line =
       Some (id, neighbors)
   | None -> None
 
+let make_node_set_from line =
+  match parse_line line with
+  | None -> failwith "Input problem"
+  | Some (id, neighbours) ->
+      let node_set = Set.add (Set.empty (module Int)) id in
+      List.fold neighbours ~init:node_set ~f:(fun set el -> Set.add set el)
+
+(* let solve_p1 () = 
+let rec loop acc lines=
+  match lines with 
+  | [] -> acc
+  | line :: rest ->
+    let node_set = make_node_set_from line in
+    let acc = 
+
+
+
+
 let result_p1 = 0
-let result_p2 = 0
+let result_p2 = 0 *)
