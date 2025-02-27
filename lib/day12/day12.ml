@@ -36,16 +36,20 @@ let make_node_set_from line =
       let node_set = Set.add (Set.empty (module Int)) id in
       List.fold neighbours ~init:node_set ~f:(fun set el -> Set.add set el)
 
-(* let solve_p1 () = 
-let rec loop acc lines=
-  match lines with 
-  | [] -> acc
-  | line :: rest ->
-    let node_set = make_node_set_from line in
-    let acc = 
 
-
-
+let add_node_set list_of_node_sets node_set_to_add =
+  
+    
+let solve_p1 () =
+  let rec loop acc lines =
+    match lines with
+    | [] -> acc
+    | line :: rest ->
+        let node_set = make_node_set_from line in
+        let acc = add_node_set acc node_set in
+        loop acc rest
+  in
+  loop [] aoc_input
 
 let result_p1 = 0
-let result_p2 = 0 *)
+let result_p2 = 0
