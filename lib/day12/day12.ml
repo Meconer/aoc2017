@@ -36,10 +36,19 @@ let make_node_set_from line =
       let node_set = Set.add (Set.empty (module Int)) id in
       List.fold neighbours ~init:node_set ~f:(fun set el -> Set.add set el)
 
-
 let add_node_set list_of_node_sets node_set_to_add =
-  
-    
+  let rec loop acc list =
+    match list with
+    | [] -> node_set_to_add :: acc
+    | first_set :: rest ->
+        if Set.are_disjoint first_set node_set_to_add then
+          loop (first_set :: acc) rest
+        else
+          let new_set = Set.union first_set node_set_to_add in
+          (new_set :: acc) @ rest
+  in
+  loop [] list_of_node_sets
+
 let solve_p1 () =
   let rec loop acc lines =
     match lines with
