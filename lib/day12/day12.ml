@@ -37,19 +37,25 @@ let make_node_set_from line =
       List.fold neighbours ~init:node_set ~f:(fun set el -> Set.add set el)
 
 let add_node_set list_of_node_sets node_set_to_add =
-  let node_sets = node_set_to_add::list_of_node_sets in
+  let node_sets = node_set_to_add :: list_of_node_sets in
   let rec loop acc list =
     match list with
     | [] -> acc
-    | first_set :: rest ->
-        let rec add_loop not_added new_set
-        if Set.are_disjoint first_set node_set_to_add then
-          loop (first_set :: acc) rest
-        else
-          let new_set = Set.union first_set node_set_to_add in
-          ((new_set :: acc) @ rest),true
+    | first_set :: tail ->
+        let rec add_loop f_set not_added sets =
+          match sets with
+          | [] -> not_added
+          | el :: tl ->
+              if Set.are_disjoint f_set el then
+                add_loop f_set (el :: not_added) tl
+              else
+                let n_f_set = Set.inter el f_set in
+                add_loop n_f_set not_added tl
+        in
+        let n_acc = add_loop first_set [] tail in
+        loop n_acc tail
   in
-  loop [] list_of_node_sets
+  loop [] node_sets
 
 let solve_p1 () =
   let rec loop acc lines =
@@ -57,7 +63,7 @@ let solve_p1 () =
     | [] -> acc
     | line :: rest ->
         let node_set = make_node_set_from line in
-        let acc = fst (add_node_set acc node_set )in
+        let acc = add_node_set acc node_set in
         loop acc rest
   in
   loop [] aoc_input
