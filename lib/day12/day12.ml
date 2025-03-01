@@ -38,7 +38,7 @@ let make_node_set_from line =
 
 let add_node_set list_of_node_sets node_set_to_add =
   let node_sets = node_set_to_add :: list_of_node_sets in
-  let rec loop acc list =
+  let loop acc list =
     match list with
     | [] -> acc
     | first_set :: tail ->
