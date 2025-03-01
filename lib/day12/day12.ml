@@ -41,21 +41,21 @@ let add_node_set list_of_node_sets node_set_to_add =
   let rec loop acc list =
     match list with
     | [] -> acc
-    | first_set :: tail -> 
-      let rec inner_loop added not_added f_set rest =
-        match rest with 
-        | [] -> added,not_added
-        | set_to_test:: tl2 ->
-          if Set.are_disjoint f_set set_to_test then
-          inner_loop added (set_to_test::not_added) f_set tl2
-          else
-          inner_loop (Set.inter added set_to_test) not_added f_set tl2
-          in
-          
-          let added,not_added = inner_loop first_set [] first_set tail 
-          
+    | first_set :: tail ->
+        let rec inner_loop added not_added f_set rest =
+          match rest with
+          | [] -> (added, not_added)
+          | set_to_test :: tl2 ->
+              if Set.are_disjoint f_set set_to_test then
+                inner_loop added (set_to_test :: not_added) f_set tl2
+              else inner_loop (Set.inter added set_to_test) not_added f_set tl2
+        in
+
+        let added, not_added = inner_loop first_set [] first_set tail in
+        (added, not_added)
   in
-  loop [] node_sets
+
+  loop (Set.empty (module Int), []) node_sets
 
 let solve_p1 () =
   let rec loop acc lines =
