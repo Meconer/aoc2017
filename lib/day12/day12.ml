@@ -48,7 +48,7 @@ let add_node_set list_of_node_sets node_set_to_add =
           | set_to_test :: tl2 ->
               if Set.are_disjoint f_set set_to_test then
                 inner_loop added (set_to_test :: not_added) f_set tl2
-              else inner_loop (Set.inter added set_to_test) not_added f_set tl2
+              else inner_loop (Set.union added set_to_test) not_added f_set tl2
         in
 
         let added, not_added = inner_loop first_set [] first_set tail in
@@ -57,7 +57,7 @@ let add_node_set list_of_node_sets node_set_to_add =
 
   loop (Set.empty (module Int), []) node_sets
 
-let solve_p1 () =
+let solve () =
   let rec loop acc lines =
     match lines with
     | [] -> acc
@@ -66,7 +66,12 @@ let solve_p1 () =
         let added, not_added = add_node_set acc node_set in
         loop (added :: not_added) rest
   in
-  loop [] aoc_input
+  let group_list = loop [] aoc_input in
+  let zero_group_opt =
+    List.find group_list ~f:(fun group_set -> Set.mem group_set 0)
+  in
+  match zero_group_opt with
+  | None -> failwith "Didnt find zero group"
+  | Some zero_group -> (Set.length zero_group, List.length group_list)
 
-let result_p1 = 0
-let result_p2 = 0
+let result_p1, result_p2 = solve ()
