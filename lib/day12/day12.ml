@@ -41,19 +41,19 @@ let add_node_set list_of_node_sets node_set_to_add =
   let rec loop acc list =
     match list with
     | [] -> acc
-    | first_set :: tail ->
-        let rec add_loop f_set not_added sets =
-          match sets with
-          | [] -> not_added
-          | el :: tl ->
-              if Set.are_disjoint f_set el then
-                add_loop f_set (el :: not_added) tl
-              else
-                let n_f_set = Set.inter el f_set in
-                add_loop n_f_set not_added tl
-        in
-        let n_acc = add_loop first_set [] tail in
-        loop n_acc tail
+    | first_set :: tail -> 
+      let rec inner_loop added not_added f_set rest =
+        match rest with 
+        | [] -> added,not_added
+        | set_to_test:: tl2 ->
+          if Set.are_disjoint f_set set_to_test then
+          inner_loop added (set_to_test::not_added) f_set tl2
+          else
+          inner_loop (Set.inter added set_to_test) not_added f_set tl2
+          in
+          
+          let added,not_added = inner_loop first_set [] first_set tail 
+          
   in
   loop [] node_sets
 
