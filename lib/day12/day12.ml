@@ -63,8 +63,8 @@ let solve_p1 () =
     | [] -> acc
     | line :: rest ->
         let node_set = make_node_set_from line in
-        let acc = add_node_set acc node_set in
-        loop acc rest
+        let added, not_added = add_node_set acc node_set in
+        loop (added :: not_added) rest
   in
   loop [] aoc_input
 
