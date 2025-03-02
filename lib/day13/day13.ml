@@ -22,9 +22,13 @@ let build_arr layer_arr lines =
   in
   loop lines
 
-let pos_of_layer layer_no time =
+let pos_of_layer_guard layer_no time =
   let depth_of_layer = layer_arr.(layer_no) in
-  
+  let cycle_length = 2 * (depth_of_layer - 1) in
+  let ofs = time mod cycle_length in
+  let half = cycle_length / 2 in
+  let pos = if ofs > half then depth_of_layer - (ofs - half + 1) else ofs in
+  (ofs, pos)
 
-let layers = List.map example ~f:parse_line
+let () = build_arr layer_arr aoc_input
 let result_p1, result_p2 = (0, 0)
