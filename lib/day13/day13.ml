@@ -1,6 +1,6 @@
 open Core
 
-let is_example = true
+let is_example = false
 let example = "0: 3\n1: 2\n4: 4\n6: 4\n" |> String.split_lines
 let filename = "lib/day13/input.txt"
 let aoc_input = if is_example then example else In_channel.read_lines filename
@@ -28,7 +28,27 @@ let pos_of_layer_guard layer_no time =
   let ofs = time mod cycle_length in
   let half = cycle_length / 2 in
   let pos = if ofs > half then depth_of_layer - (ofs - half + 1) else ofs in
-  (ofs, pos)
+  pos
 
 let () = build_arr layer_arr aoc_input
-let result_p1, result_p2 = (0, 0)
+
+let solve_p1 () =
+  let severity = ref 0 in
+  for time = 0 to max_layer do
+    if layer_arr.(time) > 0 then
+      let layer_guard = pos_of_layer_guard time time in
+      (* Printf.printf "Time: %d Pos: %d\n" time layer_guard; *)
+      if layer_guard = 0 then severity := !severity + (layer_arr.(time) * time)
+      else ()
+  done;
+  !severity
+
+let result_p1 = solve_p1 ()
+
+
+let solve_p2 () = 
+  let rec loop delay =
+    for layer_no = 0 to max_layer do 
+      let time = 
+      
+let result_p2 = 0
