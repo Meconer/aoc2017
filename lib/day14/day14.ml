@@ -2,12 +2,7 @@ open Core
 
 let is_example = true
 let aoc_input = if is_example then "flqrgnkx" else "nbysizxe"
-
-let parse_input s =
-  String.split s ~on:',' |> List.map ~f:String.strip
-  |> List.map ~f:int_of_string
-
-let l_seq = parse_input aoc_input
+let parse_input s = String.to_list s |> List.map ~f:int_of_char
 let n_arr = Array.init 256 ~f:(fun i -> i)
 
 let print_arr arr =
@@ -38,16 +33,7 @@ let calc_knot l_seq n_arr skip_size start_idx =
   in
   loop skip_size start_idx l_seq
 
-let solve_p1 () =
-  let l_seq = parse_input aoc_input in
-  let n_arr = Array.init 256 ~f:(fun i -> i) in
-  let p1_arr, _, _ = calc_knot l_seq n_arr 0 0 in
-  p1_arr
-
-let p1_arr = solve_p1 ()
-let result_p1 = Array.get p1_arr 0 * Array.get p1_arr 1
-let e_seq = [ 17; 31; 73; 47; 23 ]
-let l_seq_p2 = parse_input_p2 aoc_input @ e_seq
+let result_p1 = 0
 
 let calc_sparse_hash l_seq_p2 =
   let n_arr = Array.init 256 ~f:(fun i -> i) in
@@ -78,12 +64,32 @@ let calc_dense_hash sparse_hash =
   let hex_list = loop [] sp_hash_list in
   List.fold hex_list ~init:"" ~f:(fun acc n -> acc ^ hex_of_int n)
 
-let test_seq = parse_input_p2 ""
+let e_seq = [ 17; 31; 73; 47; 23 ]
 
 let get_hash s =
-  let l_seq_p2 = parse_input_p2 s @ e_seq in
+  let l_seq_p2 = parse_input s @ e_seq in
   let sparse_hash = calc_sparse_hash l_seq_p2 in
   let dense_hash = calc_dense_hash sparse_hash in
   dense_hash
 
-let result_p2 = get_hash aoc_input
+let bit_count c =
+  match c with
+  | '0' -> 0
+  | '1' -> 1
+  | '2' -> 1
+  | '3' -> 2
+  | '4' -> 1
+  | '5' -> 2
+  | '6' -> 2
+  | '7' -> 3
+  | '8' -> 1
+  | '9' -> 2
+  | 'a' -> 2
+  | 'b' -> 3
+  | 'c' -> 2
+  | 'd' -> 3
+  | 'e' -> 3
+  | 'f' -> 4
+  | _ -> failwith "Illegal hex char"
+
+let result_p2 = 0
