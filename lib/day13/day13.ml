@@ -45,10 +45,21 @@ let solve_p1 () =
 
 let result_p1 = solve_p1 ()
 
-
-let solve_p2 () = 
+let solve_p2 () =
   let rec loop delay =
-    for layer_no = 0 to max_layer do 
-      let time = 
-      
-let result_p2 = 0
+    let rec inner layer_no =
+      if layer_no = max_layer + 1 then true
+      else
+        let time = layer_no + delay in
+        if layer_arr.(layer_no) > 0 then
+          let layer_guard = pos_of_layer_guard layer_no time in
+          if layer_guard = 0 then false else inner (layer_no + 1)
+        else inner (layer_no + 1)
+    in
+    let found = inner 0 in
+    if found then delay else loop (delay + 1)
+  in
+  let found_delay = loop 0 in
+  found_delay
+
+let result_p2 = solve_p2 ()
