@@ -3,11 +3,6 @@ open Core
 let is_example = true
 let aoc_input = if is_example then "flqrgnkx" else "nbysizxe"
 let parse_input s = String.to_list s |> List.map ~f:int_of_char
-let n_arr = Array.init 256 ~f:(fun i -> i)
-
-let print_arr arr =
-  Array.iter arr ~f:(fun el -> Printf.printf "%d," el);
-  Printf.printf "\n"
 
 let calc_knot l_seq n_arr skip_size start_idx =
   let arr_len = Array.length n_arr in
@@ -32,8 +27,6 @@ let calc_knot l_seq n_arr skip_size start_idx =
           rest
   in
   loop skip_size start_idx l_seq
-
-let result_p1 = 0
 
 let calc_sparse_hash l_seq_p2 =
   let n_arr = Array.init 256 ~f:(fun i -> i) in
@@ -72,7 +65,7 @@ let get_hash s =
   let dense_hash = calc_dense_hash sparse_hash in
   dense_hash
 
-let bit_count c =
+let bit_count_of_c c =
   match c with
   | '0' -> 0
   | '1' -> 1
@@ -91,5 +84,61 @@ let bit_count c =
   | 'e' -> 3
   | 'f' -> 4
   | _ -> failwith "Illegal hex char"
+
+let count_bits s =
+  String.to_list s |> List.map ~f:bit_count_of_c |> List.fold ~init:0 ~f:( + )
+
+let get_hash_of_row row_no =
+  let row_str = aoc_input ^ "-" ^ string_of_int row_no in
+  get_hash row_str
+
+let solve_p1 () =
+  let rec loop acc row =
+    if row = 128 then acc
+    else
+      let hash_str = get_hash_of_row row in
+      let bit_count = count_bits hash_str in
+      loop (acc + bit_count) (row + 1)
+  in
+  loop 0 0
+
+let result_p1 = solve_p1 ()
+let bit_array = Array.make_matrix ~dimx:128 ~dimy:128 0
+
+let bits_of_ch ch =
+  let n =
+    if Char.( > ) ch '9' then int_of_char ch - int_of_char 'a' + 10
+    else int_of_char ch - int_of_char '0'
+  in
+  let bit_mask = ref 8 in
+
+  let arr = [| 0; 0; 0; 0 |] in
+  for i = 0 to 3 do
+    if n land !bit_mask > 0 then arr.(i) <- 1;
+    bit_mask := !bit_mask lsr 1
+  done;
+  arr
+
+let build_bit_arr_row row str =
+  let char_list = String.to_list str in
+  let rec loop idx char_list =
+    match char_list with
+    | [] -> ()
+    | ch :: rest ->
+        let bits = bits_of_ch ch in
+        Array.iteri bits ~f:(fun i el -> bit_array.(row).((idx * 4) + i) <- el);
+        loop (idx + 1) rest
+  in
+  loop 0 char_list
+
+let solve_p2 () =
+  let rec loop row =
+    if row = 128 then ()
+    else
+      let hash_str = get_hash_of_row row in
+      build_bit_arr_row row hash_str;
+      loop (row + 1)
+  in
+  loop 0
 
 let result_p2 = 0
