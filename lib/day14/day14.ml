@@ -1,6 +1,6 @@
 open Core
 
-let is_example = true
+let is_example = false
 let aoc_input = if is_example then "flqrgnkx" else "nbysizxe"
 let parse_input s = String.to_list s |> List.map ~f:int_of_char
 
@@ -137,15 +137,19 @@ let rc_of_idx idx = (idx / 128, idx mod 128)
 let get_neighbours row col =
   [ (row - 1, col); (row + 1, col); (row, col - 1); (row, col + 1) ]
 
-let visit_neighbours visited row col =
-  visited := Set.add !visited (idx_of_rc row col);
+let visited = ref (Set.empty (module Int))
 
+let visit_neighbours row col =
   let rec bfs row col =
     if Set.mem !visited (idx_of_rc row col) then ()
+    else visited := Set.add !visited (idx_of_rc row col);
+    if bit_array.(row).(col) = 0 then ()
     else
       let neighbours =
         get_neighbours row col
         |> List.filter ~f:(fun (r, c) -> r >= 0 && r < 128 && c >= 0 && c < 128)
+        |> List.filter ~f:(fun (r, c) -> bit_array.(r).(c) = 1)
+        |> List.filter ~f:(fun (r, c) -> not (Set.mem !visited (idx_of_rc r c)))
       in
       List.iter neighbours ~f:(fun nb -> bfs (fst nb) (snd nb))
   in
@@ -160,15 +164,15 @@ let solve_p2 () =
       loop (row + 1)
   in
   loop 0;
-  let visited = ref (Set.empty (module Int)) in
   let count = ref 0 in
   for row = 0 to 127 do
     for col = 0 to 127 do
       if Set.mem !visited (idx_of_rc row col) then ()
-      else if bit_array.(row).(col) = 1 then visit_neighbours visited row col;
-      count := !count + 1
+      else if bit_array.(row).(col) = 1 then (
+        visit_neighbours row col;
+        count := !count + 1)
     done
   done;
-  (!count, !visited)
+  !count
 
-let result_p2 = 0
+let result_p2 = solve_p2 ()
