@@ -1,5 +1,5 @@
 let () =
-  Printf.printf "Day1 part 1 : %d\n" Day1.result_p1;
+  (* Printf.printf "Day1 part 1 : %d\n" Day1.result_p1;
   Printf.printf "Day1 part 2 : %d\n" Day1.result_p2;
   Printf.printf "Day2 part 1 : %d\n" Day2.result_p1;
   Printf.printf "Day2 part 2 : %d\n" Day2.result_p2;
@@ -28,6 +28,6 @@ let () =
   Printf.printf "Day14 part 1 : %d\n" Day14.result_p1;
   Printf.printf "Day14 part 2 : %d\n" Day14.result_p2;
   Printf.printf "Day15 part 1 : %d\n" Day15.result_p1;
-  Printf.printf "Day15 part 2 : %d\n" Day15.result_p2;
+  Printf.printf "Day15 part 2 : %d\n" Day15.result_p2; *)
   Printf.printf "Day16 part 1 : %s\n" Day16.result_p1;
   Printf.printf "Day16 part 2 : %s\n" Day16.result_p2
