@@ -63,4 +63,29 @@ let solve_p1 () =
   String.of_array p_arr
 
 let result_p1 = solve_p1 ()
-let result_p2 = ""
+
+let solve_p2 () =
+  let dance_list = String.split ~on:',' aoc_input |> List.map ~f:parse in
+  let rec loop dance_list =
+    match dance_list with
+    | [] -> ()
+    | dance :: rest ->
+        do_dance dance;
+        loop rest
+  in
+  let rec find_cycle i =
+    loop dance_list;
+    let s = String.of_array p_arr in
+    Printf.printf "%d : %s\n" i s;
+    if String.equal (String.of_array p_arr) "abcdefghijklmnop" then i + 1
+    else find_cycle (i + 1)
+  in
+  let cycle = find_cycle 1 in
+  Printf.printf "Cycle : %d\n" cycle;
+  let n = 1_000_000_000 mod cycle in
+  for _ = 1 to n do
+    loop dance_list
+  done;
+  String.of_array p_arr
+
+let result_p2 = solve_p2 ()
