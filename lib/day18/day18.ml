@@ -10,7 +10,14 @@ type arg = Reg of string | Val of int
 type instr = { instr : instr_t; arg1 : string; arg2 : arg option }
 
 let string_of_instr instr =
-  match instr.instr with Snd -> "snd" | Set -> "set" | Add -> "add"
+  match instr.instr with
+  | Snd -> "snd"
+  | Set -> "set"
+  | Add -> "add"
+  | Mul -> "mul"
+  | Jgz -> "jgz"
+  | Rcv -> "rcv"
+  | Mod -> "mod"
 
 let registers = ref (Hashtbl.create (module String))
 let latest_sound = ref 0
@@ -92,6 +99,7 @@ let do_jgz instr =
   if curr_val = 0 then None else Some (get_arg instr.arg2)
 
 let do_instr instr =
+  Printf.printf "%s\n" (string_of_instr instr);
   match instr.instr with
   | Set ->
       do_set instr;
