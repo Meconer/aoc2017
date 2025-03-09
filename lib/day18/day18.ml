@@ -120,10 +120,9 @@ let do_instr instr =
 
 let instructions = List.map aoc_input ~f:parse_instr |> Array.of_list
 
-let rec solve_p1 () =
+let solve_p1 () =
   let rec loop ip =
     let instr = instructions.(ip) in
-    Printf.printf "%d: %s\n" ip (string_of_instr instr);
     let res = do_instr instr in
     match res with
     | None -> loop (ip + 1)
@@ -135,5 +134,4 @@ let rec solve_p1 () =
   in
   loop 0
 
-let result_p1 = 0
-let result_p2 = 0
+let result_p1 = solve_p1 ()

@@ -34,4 +34,4 @@ let () =
      Printf.printf "Day17 part 1 : %d\n" Day17.result_p1;
      Printf.printf "Day17 part 2 : %d\n" Day17.result_p2;*)
   Printf.printf "Day18 part 1 : %d\n" Day18.result_p1;
-  Printf.printf "Day18 part 2 : %d\n" Day18.result_p2
+  Printf.printf "Day18 part 2 : %d\n" Day18p2.result_p2
