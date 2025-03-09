@@ -1,6 +1,6 @@
 open Core
 
-let is_example = true
+let is_example = false
 
 let filename =
   if is_example then "lib/day18/example.txt" else "lib/day18/input.txt"
@@ -99,7 +99,6 @@ let do_jgz instr =
   if curr_val = 0 then None else Some (get_arg instr.arg2)
 
 let do_instr instr =
-  Printf.printf "%s\n" (string_of_instr instr);
   match instr.instr with
   | Set ->
       do_set instr;
@@ -124,9 +123,10 @@ let instructions = List.map aoc_input ~f:parse_instr |> Array.of_list
 let rec solve_p1 () =
   let rec loop ip =
     let instr = instructions.(ip) in
+    Printf.printf "%d: %s\n" ip (string_of_instr instr);
     let res = do_instr instr in
     match res with
-    | None -> loop ip + 1
+    | None -> loop (ip + 1)
     | Some ret_val -> (
         match instr.instr with
         | Jgz -> loop (ip + ret_val)
