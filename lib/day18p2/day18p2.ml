@@ -19,7 +19,7 @@ let string_of_instr instr =
   | Rcv -> "rcv"
   | Mod -> "mod"
 
-let registers = Array.create ~len:2 (Hashtbl.create (module String))
+let registers = Array.init 2 ~f:(fun _ -> Hashtbl.create (module String))
 let _ = Hashtbl.set registers.(0) ~key:"p" ~data:0
 let _ = Hashtbl.set registers.(1) ~key:"p" ~data:1
 let latest_sound = ref 0
@@ -82,12 +82,22 @@ let do_mul instr cpu =
   Hashtbl.set registers.(cpu) ~key:instr.arg1
     ~data:(curr_val * get_arg instr.arg2 cpu)
 
-let queue = Array.create ~len:2 ([] : int list)
+let queue = Array.init 2 ~f:(fun _ -> ([] : int list))
+let last_q1_l = ref 0
 
 let do_snd instr cpu =
   let receiver = 1 - cpu in
   let send_val = Hashtbl.find_exn registers.(cpu) instr.arg1 in
-  queue.(receiver) <- queue.(receiver) @ [ send_val ]
+  queue.(receiver) <- queue.(receiver) @ [ send_val ];
+  let ql1 = List.length queue.(0) in
+  if ql1 <> !last_q1_l then (
+    last_q1_l := ql1;
+    Printf.printf "ql: %d\n" ql1;
+    Out_channel.flush stdout)
+
+(* Printf.printf "Q%d: " receiver;
+  List.iter queue.(receiver) ~f:(fun el -> Printf.printf "%d " el);
+  Printf.printf "\n" *)
 
 let do_mod instr cpu =
   let curr_val =
@@ -101,6 +111,7 @@ let do_rcv instr cpu =
   else
     let received_val = List.hd_exn queue.(cpu) in
     Hashtbl.set registers.(cpu) ~key:instr.arg1 ~data:received_val;
+    queue.(cpu) <- List.drop queue.(cpu) 1;
     Some received_val
 
 let do_jgz instr cpu =
@@ -128,7 +139,11 @@ let do_instr instr cpu =
       match res with None -> 0 | Some _ -> 1)
   | Jgz -> (
       let res = do_jgz instr cpu in
-      match res with None -> 1 | Some v -> v)
+      match res with
+      | None -> 1
+      | Some v ->
+          (* Printf.printf "jgz ret %d\n" v; *)
+          v)
   | Snd ->
       do_snd instr cpu;
       1
@@ -136,17 +151,15 @@ let do_instr instr cpu =
 let instructions = List.map aoc_input ~f:parse_instr |> Array.of_list
 
 let solve_p2 () =
-  let rec loop ip =
-    let instr = instructions.(ip) in
-    let res = do_instr instr in
-    match res with
-    | None -> loop (ip + 1)
-    | Some ret_val -> (
-        match instr.instr with
-        | Jgz -> loop (ip + ret_val)
-        | Rcv -> if ret_val = 0 then loop (ip + 1) else ret_val
-        | _ -> loop (ip + 1))
+  let rec loop ip0 ip1 =
+    let instr0 = instructions.(ip0) in
+    (* Printf.printf "0: %d, %s\n" ip0 (string_of_instr instr0); *)
+    let instr1 = instructions.(ip1) in
+    (* Printf.printf "1: %d, %s\n" ip1 (string_of_instr instr1); *)
+    let res0 = do_instr instr0 0 in
+    let res1 = do_instr instr1 1 in
+    if res0 = 0 && res1 = 0 then "ready" else loop (ip0 + res0) (ip1 + res1)
   in
-  loop 0
+  loop 0 0
 
 let result_p2 = solve_p2 ()
