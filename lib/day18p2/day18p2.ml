@@ -35,6 +35,12 @@ let set_arg arg value cpu =
   | Reg r -> Hashtbl.set registers.(cpu) ~key:r ~data:value
   | Val _ -> failwith "Cannot set value"
 
+let get_val argstr cpu =
+  let val_opt = int_of_string_opt argstr in
+  match val_opt with
+  | Some n -> n
+  | None -> Hashtbl.find_or_add registers.(cpu) argstr ~default:(fun () -> 0)
+
 let parse_instr line =
   let parts = String.split line ~on:' ' in
   let instr =
@@ -82,22 +88,24 @@ let do_mul instr cpu =
   Hashtbl.set registers.(cpu) ~key:instr.arg1
     ~data:(curr_val * get_arg instr.arg2 cpu)
 
-let queue = Array.init 2 ~f:(fun _ -> ([] : int list))
+let queue = Array.init 2 ~f:(fun _ : int list -> [])
 let last_q1_l = ref 0
+let prog1_send_counter = ref 0
 
 let do_snd instr cpu =
+  if cpu = 1 then prog1_send_counter := !prog1_send_counter + 1;
   let receiver = 1 - cpu in
   let send_val = Hashtbl.find_exn registers.(cpu) instr.arg1 in
   queue.(receiver) <- queue.(receiver) @ [ send_val ];
   let ql1 = List.length queue.(0) in
   if ql1 <> !last_q1_l then (
     last_q1_l := ql1;
-    Printf.printf "ql: %d\n" ql1;
+    (* Printf.printf "ql: %d\n" ql1; *)
     Out_channel.flush stdout)
 
 (* Printf.printf "Q%d: " receiver;
-  List.iter queue.(receiver) ~f:(fun el -> Printf.printf "%d " el);
-  Printf.printf "\n" *)
+   List.iter queue.(receiver) ~f:(fun el -> Printf.printf "%d " el);
+   Printf.printf "\n" *)
 
 let do_mod instr cpu =
   let curr_val =
@@ -115,10 +123,9 @@ let do_rcv instr cpu =
     Some received_val
 
 let do_jgz instr cpu =
-  let curr_val =
-    Hashtbl.find_or_add registers.(cpu) instr.arg1 ~default:(fun _ -> 0)
-  in
-  if curr_val = 0 then None else Some (get_arg instr.arg2 cpu)
+  let curr_val = get_val instr.arg1 cpu in
+  (* Printf.printf "jgz %s (%d)\n" instr.arg1 curr_val; *)
+  if curr_val <= 0 then None else Some (get_arg instr.arg2 cpu)
 
 let do_instr instr cpu =
   match instr.instr with
@@ -158,7 +165,8 @@ let solve_p2 () =
     (* Printf.printf "1: %d, %s\n" ip1 (string_of_instr instr1); *)
     let res0 = do_instr instr0 0 in
     let res1 = do_instr instr1 1 in
-    if res0 = 0 && res1 = 0 then "ready" else loop (ip0 + res0) (ip1 + res1)
+    if res0 = 0 && res1 = 0 then !prog1_send_counter
+    else loop (ip0 + res0) (ip1 + res1)
   in
   loop 0 0
 

@@ -1,0 +1,41 @@
+i = 31
+a = 1
+p = p*17
+jgz p p  // Hoppar till 21 för cpu 1
+CPU 0:  a = a *2
+i--
+if i > 0 goto 5
+a--         // a bör vara 2^31-1 här
+i = 127
+p = 286
+p *= 8505
+p = p mod a 
+p = p * 129479
+p += 12345
+p = p mod a
+b = p
+b = b mod 10000
+send b 
+i--
+if i > 0 goto 11
+if a > 0 goto 24
+b = receive 
+if b > 0 goto 22
+f = 0
+i = 126
+a = receive
+b = receive
+p = a 
+p = -1 * p
+p = p + b
+if p > 0 then 35
+send a 
+a = b 
+goto 37
+send b 
+f = 1
+i--
+if i > 0 goto 27
+send a 
+if f > 0 goto 24
+goto 22
