@@ -22,8 +22,17 @@ let printgrid () =
     print_endline ""
   done
 
-let start_pos () =
+let start_col () =
   fst (Option.value_exn (Array.findi grid.(0) ~f:(fun i c -> Char.equal c '|')))
+
+type dir_t = Up | Down | Left | Right
+type pos_t = { r : int; c : int }
+
+let solve_p1 () = 
+  let pos = {r=0; c= start_col ()} in
+  let state = (pos, Down) in
+  let rec loop acc state = 
+     
 
 let result_p1 = 0
 let result_p2 = 0
