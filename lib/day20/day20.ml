@@ -48,12 +48,22 @@ let remove_colliding particles =
     | [] -> acc
     | hd :: rest ->
         if List.exists rest ~f:(fun part -> vec_eq hd.pos part.pos) then
-          loop acc (List.filter rest ~f:(fun part -> vec_eq part.pos hd.pos))
+          loop acc
+            (List.filter rest ~f:(fun part -> not (vec_eq part.pos hd.pos)))
         else loop (hd :: acc) rest
   in
   loop [] particles
 
-(* let solve_p2 particles =
-  let rec loop parts =
-     *)
-let result_p2 = 0
+let solve_p2 particles =
+  let rec loop particles last_count no_change_count =
+    if no_change_count > 100 then last_count
+    else
+      let particles = tick particles in
+      let particles = remove_colliding particles in
+      let count = List.length particles in
+      if count <> last_count then loop particles count 0
+      else loop particles last_count (no_change_count + 1)
+  in
+  loop particles (List.length particles) 0
+
+let result_p2 = solve_p2 particles
