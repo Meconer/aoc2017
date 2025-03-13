@@ -6,12 +6,10 @@ let filename =
   if is_example then "lib/day21/example.txt" else "lib/day21/input.txt"
 
 let aoc_input = In_channel.read_lines filename
-let start_pattern = [| [| '.'; '#'; '.' |]; [| '.'; 0; 1 |]; [| 1; 1; 1 |] |]
 
 let print_pattern pattern =
   Array.iter pattern ~f:(fun line ->
-      Array.iter line ~f:(fun px ->
-          Printf.printf "%c" (if px = 1 then '#' else '.'));
+      Array.iter line ~f:(fun px -> Printf.printf "%c" px);
       Printf.printf "\n")
 
 let parse_line line =
@@ -20,14 +18,14 @@ let parse_line line =
   in
   (input_pattern, output_pattern)
 
-let pat_of_strs2 parts =
-
-
-let pattern_of_string s = 
+let pattern_of_string s =
   let parts = String.split s ~on:'/' in
-  match (List.length parts) with 
-  | 2 -> pat_of_strs2 parts 
+  List.map parts ~f:String.to_array |> Array.of_list
 
+let start_pattern =
+  [| [| '.'; '#'; '.' |]; [| '.'; '.'; '#' |]; [| '#'; '#'; '#' |] |]
+
+let start_pattern2 = pattern_of_string ".#./..#/###"
 
 (*
    12 31 43 24
