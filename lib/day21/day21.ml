@@ -47,7 +47,7 @@ let rotations2 p =
 *)
 let rotations3 pattern =
   let rec loop acc count p =
-    if count = 0 then acc
+    if count = 0 then List.rev acc |> Array.of_list
     else
       let rot =
         [|
