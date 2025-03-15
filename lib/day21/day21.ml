@@ -112,6 +112,10 @@ let extract pattern start_row start_col size =
   done;
   arr
 
+let replace_pattern pattern rules =
+  let
+
+
 let expand pattern =
   let l = Array.length pattern in
   let size = if l mod 3 = 0 then 3 else 2 in
@@ -120,7 +124,8 @@ let expand pattern =
   for row = 0 to no_pats - 1 do
     let cols = ref [] in
     for col = 0 to no_pats - 1 do
-      let sub_pattern = extract pattern (row * 3) (col * 3) 3 in
+      let sub_pattern = extract pattern (row * size) (col * size) size in
+      let new_pattern = replace_pattern sub_pattern in
       cols := sub_pattern :: !cols
     done;
     rows := !cols :: !rows
