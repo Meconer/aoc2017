@@ -120,7 +120,6 @@ let extract pattern start_row start_col size =
   let arr = Array.make_matrix ~dimx:size ~dimy:size '.' in
   for r = 0 to size - 1 do
     for c = 0 to size - 1 do
-      printf "col: %d" c;
       arr.(r).(c) <- pattern.(start_row + r).(start_col + c)
     done
   done;
@@ -137,27 +136,27 @@ let replace_pattern pattern rules =
           List.exists variants ~f:(fun p ->
               let patt_of_rule = pattern_of_string (fst rule) in
               is_patt_match p patt_of_rule)
-        then snd rule
+        then pattern_of_string (snd rule)
         else loop rest
   in
   loop rules
 
-let expand pattern =
+let expand pattern rules =
   let l = Array.length pattern in
   let size = if l mod 3 = 0 then 3 else 2 in
-  printf "Size: %d" size;
+  printf "Size: %d\n" size;
   let no_pats = Array.length pattern / size in
   let rows = ref [] in
   for row = 0 to no_pats - 1 do
     let cols = ref [] in
     for col = 0 to no_pats - 1 do
       let sub_pattern = extract pattern (row * size) (col * size) size in
-      let new_pattern = replace_pattern sub_pattern in
+      let new_pattern = replace_pattern sub_pattern rules in
       cols := new_pattern :: !cols
     done;
-    rows := !cols :: !rows
+    rows := !cols @ !rows
   done;
-  !rows
+  Array.of_list !rows
 
 let rules = List.map aoc_input ~f:parse_line
 let result_p1 = 0
