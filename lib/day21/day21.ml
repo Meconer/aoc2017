@@ -156,7 +156,19 @@ let expand pattern rules =
     done;
     rows := !cols @ !rows
   done;
-  Array.of_list !rows
+  !rows
+(* let new_size = (size + 1) * no_pats in
+   let new_arr = Array.make_matrix ~dimx:new_size ~dimy:new_size '.' in
+   for row = 0 to no_pats - 1 do
+     for col = 0 to no_pats - 1 do
+       for inner_row = 0 to size do
+         for inner_col = 0 to size do
+           new_arr.((row * size) + inner_row).((col * size) + inner_col) <- '.'
+         done
+       done
+     done
+   done;
+   new_arr *)
 
 let rules = List.map aoc_input ~f:parse_line
 let result_p1 = 0
