@@ -96,8 +96,21 @@ let flips_and_rots p =
   else flips2 p |> List.concat_map ~f:rotations2
 
 let is_patt_match p1 p2 =
-  Array.for_all2_exn p1 p2 ~f:(fun row1 row2 ->
-      Array.for_all2_exn row1 row2 ~f:Char.equal)
+  let size = Array.length p1 in
+  let size2 = Array.length p2 in
+  if size <> size2 then false
+  else
+    let rec row_loop row =
+      let rec col_loop col =
+        if col < 0 then true
+        else if Char.equal p1.(row).(col) p2.(row).(col) then col_loop (col - 1)
+        else false
+      in
+      if row < 0 then true
+      else if col_loop (size - 1) then row_loop (row - 1)
+      else false
+    in
+    row_loop (size - 1)
 
 let is_inp_match inp p =
   let fr = flips_and_rots p in
@@ -107,18 +120,32 @@ let extract pattern start_row start_col size =
   let arr = Array.make_matrix ~dimx:size ~dimy:size '.' in
   for r = 0 to size - 1 do
     for c = 0 to size - 1 do
+      printf "col: %d" c;
       arr.(r).(c) <- pattern.(start_row + r).(start_col + c)
     done
   done;
   arr
 
 let replace_pattern pattern rules =
-  let
-
+  let variants = flips_and_rots pattern in
+  let rec loop rules =
+    match rules with
+    | [] -> failwith "No rule found"
+    | rule :: rest ->
+        printf "Rule : %s\n" (fst rule);
+        if
+          List.exists variants ~f:(fun p ->
+              let patt_of_rule = pattern_of_string (fst rule) in
+              is_patt_match p patt_of_rule)
+        then snd rule
+        else loop rest
+  in
+  loop rules
 
 let expand pattern =
   let l = Array.length pattern in
   let size = if l mod 3 = 0 then 3 else 2 in
+  printf "Size: %d" size;
   let no_pats = Array.length pattern / size in
   let rows = ref [] in
   for row = 0 to no_pats - 1 do
@@ -126,10 +153,11 @@ let expand pattern =
     for col = 0 to no_pats - 1 do
       let sub_pattern = extract pattern (row * size) (col * size) size in
       let new_pattern = replace_pattern sub_pattern in
-      cols := sub_pattern :: !cols
+      cols := new_pattern :: !cols
     done;
     rows := !cols :: !rows
-  done
+  done;
+  !rows
 
 let rules = List.map aoc_input ~f:parse_line
 let result_p1 = 0
