@@ -1,6 +1,6 @@
 open Core
 
-let is_example = true
+let is_example = false
 
 let filename =
   if is_example then "lib/day21/example.txt" else "lib/day21/input.txt"
@@ -52,9 +52,9 @@ let flips2 p =
   ]
 
 (*
-   123 412 741 874 987 698 369 236
-   456 753 852 951 654 357 258 159
-   789 896 963 632 321 214 147 478
+   123 741 987 369
+   456 852 654 258
+   789 963 321 147
 *)
 let rotations3 pattern =
   let rec loop acc count p =
@@ -62,14 +62,14 @@ let rotations3 pattern =
     else
       let rot =
         [|
-          [| p.(1).(0); p.(0).(0); p.(0).(1) |];
-          [| p.(2).(0); p.(1).(1); p.(0).(2) |];
-          [| p.(2).(1); p.(2).(2); p.(1).(2) |];
+          [| p.(2).(0); p.(1).(0); p.(0).(0) |];
+          [| p.(2).(1); p.(1).(1); p.(0).(1) |];
+          [| p.(2).(2); p.(1).(2); p.(0).(2) |];
         |]
       in
       loop (rot :: acc) (count - 1) rot
   in
-  loop [ pattern ] 7 pattern
+  loop [ pattern ] 3 pattern
 
 let flips3 p =
   [
@@ -131,7 +131,7 @@ let replace_pattern pattern rules =
     match rules with
     | [] -> failwith "No rule found"
     | rule :: rest ->
-        printf "Rule : %s\n" (fst rule);
+        (* printf "Rule : %s\n" (fst rule); *)
         if
           List.exists variants ~f:(fun p ->
               let patt_of_rule = pattern_of_string (fst rule) in
@@ -146,6 +146,7 @@ let expand pattern rules =
   let size = if l mod 3 = 0 then 3 else 2 in
   printf "Size: %d\n" size;
   let no_pats = Array.length pattern / size in
+  printf "no_pats: %d\n" no_pats;
   let rows = ref [] in
   for row = 0 to no_pats - 1 do
     let cols = ref [] in
@@ -157,16 +158,21 @@ let expand pattern rules =
     rows := !cols @ !rows
   done;
   let exp_pat = Array.of_list !rows in
+  (* Array.iteri exp_pat ~f:(fun i p ->
+      printf "%d:\n" i;
+      print_pattern p); *)
+  printf "Size of pat: %d\n" (Array.length exp_pat);
   let new_size = (size + 1) * no_pats in
   let new_arr = Array.make_matrix ~dimx:new_size ~dimy:new_size '.' in
   for row = 0 to no_pats - 1 do
     for col = 0 to no_pats - 1 do
-      for inner_row = 0 to size do
-        for inner_col = 0 to size do
-          let r = (row * size) + inner_row in
-          let c = (col * size) + inner_col in
+      for r = 0 to size do
+        for c = 0 to size do
           let pat_no = (row * no_pats) + col in
-          new_arr.(r).(c) <- exp_pat.(pat_no).(r).(c)
+          (* printf "pat_no %d, r %d, c %d\n" pat_no r c; *)
+          let target_row = (row * (size + 1)) + r in
+          let target_col = (col * (size + 1)) + c in
+          new_arr.(target_row).(target_col) <- exp_pat.(pat_no).(r).(c)
         done
       done
     done
@@ -174,7 +180,23 @@ let expand pattern rules =
   new_arr
 
 let rules = List.map aoc_input ~f:parse_line
-let test_pattern = pattern_of_string "../.#"
-let l = expand test_pattern rules
-let result_p1 = 0
+
+let pixel_count pattern =
+  Array.fold ~init:0 pattern ~f:(fun acc sp ->
+      acc
+      + Array.fold sp ~init:0 ~f:(fun acc el ->
+            acc + if Char.equal el '#' then 1 else 0))
+
+let solve_p1 pattern rules no_iters =
+  let rec loop count pattern =
+    print_pattern pattern;
+    if count = 0 then pattern else loop (count - 1) (expand pattern rules)
+  in
+  let exp_pattern = loop no_iters pattern in
+  pixel_count exp_pattern
+
+let result_p1 = solve_p1 start_pattern rules 5
+
+(* 152 too high *)
+(* 136 too low *)
 let result_p2 = 0
