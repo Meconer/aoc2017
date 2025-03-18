@@ -137,9 +137,9 @@ let replace_pattern pattern rules =
               let patt_of_rule = pattern_of_string (fst rule) in
               is_patt_match p patt_of_rule)
         then (
-          (* printf "Found pattern\n";
-             print_pattern pattern;
-             print_pattern (pattern_of_string (fst rule)); *)
+          printf "Found pattern\n";
+          print_pattern pattern;
+          printf "%s => %s\n" (fst rule) (snd rule);
           let rp = pattern_of_string (snd rule) in
           printf "Output patt: \n";
           print_pattern rp;
@@ -162,7 +162,7 @@ let expand pattern rules =
       let new_pattern = replace_pattern sub_pattern rules in
       cols := new_pattern :: !cols
     done;
-    rows := !cols @ !rows
+    rows := !rows @ List.rev !cols
   done;
   let exp_pat = Array.of_list !rows in
   (* Array.iteri exp_pat ~f:(fun i p ->
@@ -202,7 +202,7 @@ let solve_p1 pattern rules no_iters =
   let exp_pattern = loop no_iters pattern in
   pixel_count exp_pattern
 
-let result_p1 = solve_p1 start_pattern rules 2
+let result_p1 = solve_p1 start_pattern rules 4
 
 (* 152 too high *)
 (* 136 too low *)
