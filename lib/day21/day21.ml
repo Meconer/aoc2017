@@ -136,7 +136,14 @@ let replace_pattern pattern rules =
           List.exists variants ~f:(fun p ->
               let patt_of_rule = pattern_of_string (fst rule) in
               is_patt_match p patt_of_rule)
-        then pattern_of_string (snd rule)
+        then (
+          printf "Found pattern\n";
+          print_pattern pattern;
+          print_pattern (pattern_of_string (fst rule));
+          let rp = pattern_of_string (snd rule) in
+          printf "Output patt: \n";
+          print_pattern rp;
+          rp)
         else loop rest
   in
   loop rules
@@ -144,9 +151,9 @@ let replace_pattern pattern rules =
 let expand pattern rules =
   let l = Array.length pattern in
   let size = if l mod 3 = 0 then 3 else 2 in
-  printf "Size: %d\n" size;
+  (* printf "Size: %d\n" size; *)
   let no_pats = Array.length pattern / size in
-  printf "no_pats: %d\n" no_pats;
+  (* printf "no_pats: %d\n" no_pats; *)
   let rows = ref [] in
   for row = 0 to no_pats - 1 do
     let cols = ref [] in
