@@ -131,29 +131,21 @@ let replace_pattern pattern rules =
     match rules with
     | [] -> failwith "No rule found"
     | rule :: rest ->
-        (* printf "Rule : %s\n" (fst rule); *)
         if
           List.exists variants ~f:(fun p ->
               let patt_of_rule = pattern_of_string (fst rule) in
               is_patt_match p patt_of_rule)
-        then (
-          printf "Found pattern\n";
-          print_pattern pattern;
-          printf "%s => %s\n" (fst rule) (snd rule);
+        then
           let rp = pattern_of_string (snd rule) in
-          printf "Output patt: \n";
-          print_pattern rp;
-          rp)
+          rp
         else loop rest
   in
   loop rules
 
 let expand pattern rules =
   let l = Array.length pattern in
-  let size = if l mod 3 = 0 then 3 else 2 in
-  (* printf "Size: %d\n" size; *)
+  let size = if l mod 2 = 0 then 2 else 3 in
   let no_pats = Array.length pattern / size in
-  (* printf "no_pats: %d\n" no_pats; *)
   let rows = ref [] in
   for row = 0 to no_pats - 1 do
     let cols = ref [] in
@@ -165,10 +157,6 @@ let expand pattern rules =
     rows := !rows @ List.rev !cols
   done;
   let exp_pat = Array.of_list !rows in
-  (* Array.iteri exp_pat ~f:(fun i p ->
-      printf "%d:\n" i;
-      print_pattern p); *)
-  (* printf "Size of pat: %d\n" (Array.length exp_pat); *)
   let new_size = (size + 1) * no_pats in
   let new_arr = Array.make_matrix ~dimx:new_size ~dimy:new_size '.' in
   for row = 0 to no_pats - 1 do
@@ -176,7 +164,6 @@ let expand pattern rules =
       for r = 0 to size do
         for c = 0 to size do
           let pat_no = (row * no_pats) + col in
-          (* printf "pat_no %d, r %d, c %d\n" pat_no r c; *)
           let target_row = (row * (size + 1)) + r in
           let target_col = (col * (size + 1)) + c in
           new_arr.(target_row).(target_col) <- exp_pat.(pat_no).(r).(c)
@@ -196,14 +183,12 @@ let pixel_count pattern =
 
 let solve_p1 pattern rules no_iters =
   let rec loop count pattern =
-    print_pattern pattern;
+    (* printf "Count : %d \n" count; *)
+    Out_channel.flush stdout;
     if count = 0 then pattern else loop (count - 1) (expand pattern rules)
   in
   let exp_pattern = loop no_iters pattern in
   pixel_count exp_pattern
 
-let result_p1 = solve_p1 start_pattern rules 4
-
-(* 152 too high *)
-(* 136 too low *)
-let result_p2 = 0
+let result_p1 = solve_p1 start_pattern rules 5
+let result_p2 = solve_p1 start_pattern rules 18
