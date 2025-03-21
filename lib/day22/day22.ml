@@ -22,8 +22,26 @@ module Pos = struct
 end
 
 let aoc_input = In_channel.read_lines filename
-let height = List.length aoc_input
-let width = String.length (List.hd_exn aoc_input)
-let viruses = Set.empty (module Pos)
+
+let build_grid lines =
+  let height = List.length aoc_input in
+  let width = String.length (List.hd_exn aoc_input) in
+  let start_point = Pos.{ x = width / 2; y = height / 2 } in
+
+  let viruses = Set.empty (module Pos) in
+  let rec loop acc lines line_no =
+    match lines with
+    | [] -> acc
+    | line :: rest ->
+        let acc =
+          String.foldi ~init:acc line ~f:(fun idx acc ch ->
+              if Char.equal ch '#' then Set.add acc Pos.{ x = idx; y = line_no }
+              else acc)
+        in
+        loop acc rest (line_no + 1)
+  in
+  let viruses = loop viruses lines 0 in
+  (viruses, start_point)
+
 let result_p1 = 0
 let result_p2 = 0
