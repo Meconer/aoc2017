@@ -22,6 +22,8 @@ module Pos = struct
 end
 
 let aoc_input = In_channel.read_lines filename
+let height = List.length aoc_input
+let width = String.length (List.hd_exn aoc_input)
 let viruses = Set.empty (module Pos)
 let result_p1 = 0
 let result_p2 = 0
