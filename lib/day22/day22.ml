@@ -1,6 +1,6 @@
 open Core
 
-let is_example = false
+let is_example = true
 
 let filename =
   if is_example then "lib/day22/example.txt" else "lib/day22/input.txt"
@@ -66,6 +66,9 @@ let turn_left dir =
 let turn_right dir =
   match dir with Up -> Right | Down -> Left | Right -> Down | Left -> Up
 
+let reverse dir =
+  match dir with Up -> Down | Down -> Up | Right -> Down | Left -> Up
+
 let find_min_max grid =
   let x_min, y_min, x_max, y_max = (ref 0, ref 0, ref 0, ref 0) in
   Set.iter grid ~f:(fun pos ->
@@ -89,6 +92,8 @@ let print_grid grid carr_pos =
     printf "\n"
   done
 
+type node_state = Clean | Weakened | Infected | Flagged
+
 let solve_p1 input count =
   let grid, start_point = build_grid input in
   let infect_count = ref 0 in
@@ -104,7 +109,69 @@ let solve_p1 input count =
       in
       let pos = Pos.move pos dir in
       (* printf "%d, %d %c\n" pos.x pos.y (char_of_dir dir);
-      print_grid grid' pos; *)
+         print_grid grid' pos; *)
+      iterate grid' pos dir (count - 1)
+  in
+  iterate grid start_point Up count
+
+let build_grid_p2 lines =
+  let height = List.length aoc_input in
+  let width = String.length (List.hd_exn aoc_input) in
+  let start_point = Pos.{ x = width / 2; y = height / 2 } in
+
+  let viruses = Map.empty (module Pos) in
+  let rec loop acc lines line_no =
+    match lines with
+    | [] -> acc
+    | line :: rest ->
+        let acc =
+          String.foldi ~init:acc line ~f:(fun idx acc ch ->
+              if Char.equal ch '#' then
+                Map.set acc ~key:Pos.{ x = idx; y = line_no } ~data:Infected
+              else acc)
+        in
+        loop acc rest (line_no + 1)
+  in
+  let viruses = loop viruses lines 0 in
+  (viruses, start_point)
+
+
+let get_turn_of_dir state dir =
+  match state with 
+  | Clean -> turn_left dir
+  | Infected -> turn_right dir
+  | Weakened -> dir
+  | Flagged -> reverse dir
+
+
+let solve_p2 input count =
+  let grid, start_point = build_grid input in
+  let infect_count = ref 0 in
+
+  let rec iterate grid pos dir count =
+    if count = 0 then !infect_count
+    else
+      let state_of_pos = 
+        match Map.find grid pos with 
+        | None -> Clean
+        | Some state -> state in
+
+      let next_dir = 
+        get_turn_of_dir state_of_pos dir in
+      let grid' = match state_of_pos with 
+      | Clean -> Map.set grid ~key:pos ~data:Weakened
+      | Weakened -> Map.set grid ~key:pos ~data:Infected
+      | Infected -> Map.set grid ~key:pos ~data:Flagged
+      | Flagged -> Map.remove  grid pos in
+       
+        if not (is_infected grid pos) then (
+          infect_count := !infect_count + 1;
+          (infect grid pos, turn_left dir))
+        else (clean grid pos, turn_right dir)
+      in
+      let pos = Pos.move pos dir in
+      (* printf "%d, %d %c\n" pos.x pos.y (char_of_dir dir);
+         print_grid grid' pos; *)
       iterate grid' pos dir (count - 1)
   in
   iterate grid start_point Up count
