@@ -1,6 +1,6 @@
 open Core
 
-let is_example = true
+let is_example = false
 
 let filename =
   if is_example then "lib/day22/example.txt" else "lib/day22/input.txt"
@@ -67,11 +67,20 @@ let turn_right dir =
   match dir with Up -> Right | Down -> Left | Right -> Down | Left -> Up
 
 let reverse dir =
-  match dir with Up -> Down | Down -> Up | Right -> Down | Left -> Up
+  match dir with Up -> Down | Down -> Up | Right -> Left | Left -> Right
 
 let find_min_max grid =
   let x_min, y_min, x_max, y_max = (ref 0, ref 0, ref 0, ref 0) in
   Set.iter grid ~f:(fun pos ->
+      x_min := min !x_min Pos.(pos.x);
+      x_max := max !x_max Pos.(pos.x);
+      y_min := min !y_min Pos.(pos.y);
+      y_max := max !y_max Pos.(pos.y));
+  (!x_min, !x_max, !y_min, !y_max)
+
+let find_min_max_p2 grid =
+  let x_min, y_min, x_max, y_max = (ref 0, ref 0, ref 0, ref 0) in
+  Map.iter_keys grid ~f:(fun pos ->
       x_min := min !x_min Pos.(pos.x);
       x_max := max !x_max Pos.(pos.x);
       y_min := min !y_min Pos.(pos.y);
@@ -135,46 +144,74 @@ let build_grid_p2 lines =
   let viruses = loop viruses lines 0 in
   (viruses, start_point)
 
-
 let get_turn_of_dir state dir =
-  match state with 
+  match state with
   | Clean -> turn_left dir
   | Infected -> turn_right dir
   | Weakened -> dir
   | Flagged -> reverse dir
 
+let print_grid_p2 grid carr_pos =
+  let x_min, x_max, y_min, y_max = find_min_max_p2 grid in
+  printf "xmin %d xmax %d ymin %d ymax %d\n" x_min x_max y_min y_max;
+  for y = y_min to y_max do
+    for x = x_min to x_max do
+      let pr_pos = Pos.{ x; y } in
+      let state =
+        match Map.find grid pr_pos with None -> Clean | Some s -> s
+      in
+
+      let ch =
+        match state with
+        | Clean -> '.'
+        | Weakened -> 'W'
+        | Flagged -> 'F'
+        | Infected -> '#'
+      in
+      let d1, d2 =
+        if Pos.equal carr_pos Pos.{ x; y } then ('[', ']') else (' ', ' ')
+      in
+      printf "%c%c%c" d1 ch d2
+    done;
+    printf "\n"
+  done
 
 let solve_p2 input count =
-  let grid, start_point = build_grid input in
+  let grid, start_point = build_grid_p2 input in
   let infect_count = ref 0 in
 
   let rec iterate grid pos dir count =
     if count = 0 then !infect_count
     else
-      let state_of_pos = 
-        match Map.find grid pos with 
-        | None -> Clean
-        | Some state -> state in
-
-      let next_dir = 
-        get_turn_of_dir state_of_pos dir in
-      let grid' = match state_of_pos with 
-      | Clean -> Map.set grid ~key:pos ~data:Weakened
-      | Weakened -> Map.set grid ~key:pos ~data:Infected
-      | Infected -> Map.set grid ~key:pos ~data:Flagged
-      | Flagged -> Map.remove  grid pos in
-       
-        if not (is_infected grid pos) then (
-          infect_count := !infect_count + 1;
-          (infect grid pos, turn_left dir))
-        else (clean grid pos, turn_right dir)
+      let state_of_pos =
+        match Map.find grid pos with None -> Clean | Some state -> state
       in
-      let pos = Pos.move pos dir in
+
+      let next_dir = get_turn_of_dir state_of_pos dir in
+      let next_state =
+        match state_of_pos with
+        | Clean -> Weakened
+        | Weakened ->
+            infect_count := !infect_count + 1;
+            Infected
+        | Infected -> Flagged
+        | Flagged -> Clean
+      in
+
+      let grid' =
+        match next_state with
+        | Clean -> Map.remove grid pos
+        | Weakened -> Map.set grid ~key:pos ~data:Weakened
+        | Infected -> Map.set grid ~key:pos ~data:Infected
+        | Flagged -> Map.set grid ~key:pos ~data:Flagged
+      in
+
+      let pos = Pos.move pos next_dir in
       (* printf "%d, %d %c\n" pos.x pos.y (char_of_dir dir);
-         print_grid grid' pos; *)
-      iterate grid' pos dir (count - 1)
+      print_grid_p2 grid' pos; *)
+      iterate grid' pos next_dir (count - 1)
   in
   iterate grid start_point Up count
 
 let result_p1 = solve_p1 aoc_input 10000
-let result_p2 = 0
+let result_p2 = solve_p2 aoc_input 10000000
