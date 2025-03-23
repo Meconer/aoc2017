@@ -145,12 +145,19 @@ let do_instr instr =
 
 let instructions = List.map aoc_input ~f:parse_instr |> Array.of_list
 
+let print_regs () =
+  List.iter reg_names ~f:(fun reg ->
+      printf "%c: %d | " reg (Hashtbl.find_exn registers reg));
+  printf "\n";
+  ()
+
 let solve_p1 () =
   let rec loop ip =
     if ip < 0 || ip >= Array.length instructions then ()
     else
       let instr = instructions.(ip) in
-      (* Printf.printf "0: %d, %s\n" ip0 (string_of_instr instr0); *)
+      Printf.printf "ip: %d, %s\n" ip (string_of_instr instr);
+      print_regs ();
       let res = do_instr instr in
       loop (ip + res)
   in
