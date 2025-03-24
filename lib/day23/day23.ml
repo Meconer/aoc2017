@@ -162,8 +162,10 @@ let print_regs () =
 
 let run_prog a_val =
   set_regs_to_zero a_val;
+  let after_bp = ref false in
   let last_h = ref 0 in
   let rec loop ip =
+    if ip = 20 then after_bp := true;
     if ip < 0 || ip >= Array.length instructions then ()
     else
       let instr = instructions.(ip) in
@@ -173,8 +175,14 @@ let run_prog a_val =
       if h <> !last_h then last_h := h;
       print_regs ();
       Out_channel.flush stdout;
-
-      let _ = In_channel.input_line In_channel.stdin in
+      if !after_bp then (
+        let inp = In_channel.input_char In_channel.stdin in
+        match inp with
+        | None -> ()
+        | Some ch ->
+            if Char.equal ch 'b' then after_bp := false;
+            ())
+      else ();
       loop (ip + res)
   in
   loop 0;

@@ -6,12 +6,18 @@ c=b                 108100
 c=c+17000           125100
 f=1
 d=2
-e=2
-g=d                 2
+B: e=2
+A: g=d                 2
 g= g*e              4
 g = g - b           4-108100 = -108096
-if b = 0 then
+if g = 0 then
    f=0
-e= e+1
+e++
 g=e
 g = g - b
+if g<>0 then A
+d++
+g=d
+g=g-b
+if g<>0 then B
+
