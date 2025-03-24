@@ -162,20 +162,23 @@ let print_regs () =
 
 let run_prog a_val =
   set_regs_to_zero a_val;
+  let last_h = ref 0 in
   let rec loop ip =
     if ip < 0 || ip >= Array.length instructions then ()
     else
       let instr = instructions.(ip) in
       Printf.printf "ip: %d, %s\n" ip instr.instr_str;
       let res = do_instr instr in
+      let h = Hashtbl.find_exn registers 'h' in
+      if h <> !last_h then last_h := h;
       print_regs ();
       Out_channel.flush stdout;
-      let _ = In_channel.input_line In_channel.stdin in
 
+      let _ = In_channel.input_line In_channel.stdin in
       loop (ip + res)
   in
   loop 0;
   !mul_counter
 
-let result_p1 = run_prog 0
+(* let result_p1 = run_prog 0 *)
 let result_p2 = run_prog 1
