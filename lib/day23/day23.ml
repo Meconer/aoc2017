@@ -7,7 +7,13 @@ let filename =
 
 type instr_t = Set | Sub | Add | Mul | Jnz
 type arg = Reg of char | Val of int
-type instr = { instr : instr_t; arg1 : arg; arg2 : arg option }
+
+type instr = {
+  instr : instr_t;
+  arg1 : arg;
+  arg2 : arg option;
+  instr_str : string;
+}
 
 let string_of_instr instr =
   match instr.instr with
@@ -19,7 +25,10 @@ let string_of_instr instr =
 
 let registers = Hashtbl.create (module Char)
 let reg_names = [ 'a'; 'b'; 'c'; 'd'; 'e'; 'f'; 'g'; 'h' ]
-let () = List.iter reg_names ~f:(fun r -> Hashtbl.set registers ~key:r ~data:0)
+
+let set_regs_to_zero a_val =
+  List.iter reg_names ~f:(fun r -> Hashtbl.set registers ~key:r ~data:0);
+  Hashtbl.set registers ~key:'a' ~data:a_val
 
 let get_arg arg =
   match arg with
@@ -73,7 +82,7 @@ let parse_instr line =
             let r = String.get arg 0 in
             Some (Reg r))
   in
-  { instr; arg1; arg2 }
+  { instr; arg1; arg2; instr_str = line }
 
 let aoc_input = In_channel.read_lines filename
 
@@ -113,13 +122,13 @@ let do_mul instr =
   Hashtbl.set registers ~key:reg1 ~data:(curr_val * get_arg instr.arg2)
 
 let do_jnz instr =
-  let curr_val, reg =
+  let curr_val, _reg =
     match instr.arg1 with
     | Reg reg -> (Hashtbl.find_exn registers reg, reg)
     | Val v -> (v, '!')
   in
-  Printf.printf "jnz %c (%d)\n" reg curr_val;
-  if curr_val <> 0 then None else Some (get_arg instr.arg2)
+  (* Printf.printf "jnz %c (%d)\n" reg curr_val; *)
+  if curr_val = 0 then None else Some (get_arg instr.arg2)
 
 let do_instr instr =
   match instr.instr with
@@ -151,17 +160,22 @@ let print_regs () =
   printf "\n";
   ()
 
-let solve_p1 () =
+let run_prog a_val =
+  set_regs_to_zero a_val;
   let rec loop ip =
     if ip < 0 || ip >= Array.length instructions then ()
     else
       let instr = instructions.(ip) in
-      Printf.printf "ip: %d, %s\n" ip (string_of_instr instr);
-      print_regs ();
+      Printf.printf "ip: %d, %s\n" ip instr.instr_str;
       let res = do_instr instr in
+      print_regs ();
+      Out_channel.flush stdout;
+      let _ = In_channel.input_line In_channel.stdin in
+
       loop (ip + res)
   in
-  loop 0
+  loop 0;
+  !mul_counter
 
-let result_p1 = 0
-let result_p2 = 0
+let result_p1 = run_prog 0
+let result_p2 = run_prog 1
