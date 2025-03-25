@@ -163,18 +163,34 @@ let print_regs () =
 let run_prog a_val =
   set_regs_to_zero a_val;
   let after_bp = ref false in
+  let last_b = ref 0 in
+  let last_f = ref 0 in
   let last_h = ref 0 in
   let rec loop ip =
-    if ip = 20 then after_bp := true;
+    if ip = 25 then after_bp := true;
     if ip < 0 || ip >= Array.length instructions then ()
     else
       let instr = instructions.(ip) in
-      Printf.printf "ip: %d, %s\n" ip instr.instr_str;
+      if !after_bp then Printf.printf "ip: %d, %s\n" ip instr.instr_str;
       let res = do_instr instr in
+      let b = Hashtbl.find_exn registers 'b' in
+      if b <> !last_b then (
+        last_b := b;
+        printf "New b: %d\n" b;
+        Out_channel.flush stdout);
+      let f = Hashtbl.find_exn registers 'f' in
+      if f <> !last_f then (
+        last_f := f;
+        printf "New f: %d\n" f;
+        Out_channel.flush stdout);
       let h = Hashtbl.find_exn registers 'h' in
-      if h <> !last_h then last_h := h;
-      print_regs ();
-      Out_channel.flush stdout;
+      if h <> !last_h then (
+        last_h := h;
+        printf "New h: %d\n" h;
+        Out_channel.flush stdout);
+      if !after_bp then (
+        print_regs ();
+        Out_channel.flush stdout);
       if !after_bp then (
         let inp = In_channel.input_char In_channel.stdin in
         match inp with
