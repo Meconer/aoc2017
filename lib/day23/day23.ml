@@ -50,7 +50,7 @@ let get_val argstr =
       Hashtbl.find_or_add registers reg ~default:(fun () -> 0)
 
 let parse_instr line =
-  printf "PI: %s" line;
+  (* printf "PI: %s" line; *)
   let parts = String.split line ~on:' ' in
   let instr =
     match List.hd_exn parts with
@@ -162,47 +162,54 @@ let print_regs () =
 
 let run_prog a_val =
   set_regs_to_zero a_val;
-  let after_bp = ref false in
-  let last_b = ref 0 in
-  let last_f = ref 0 in
-  let last_h = ref 0 in
   let rec loop ip =
-    if ip = 25 then after_bp := true;
     if ip < 0 || ip >= Array.length instructions then ()
     else
       let instr = instructions.(ip) in
-      if !after_bp then Printf.printf "ip: %d, %s\n" ip instr.instr_str;
       let res = do_instr instr in
-      let b = Hashtbl.find_exn registers 'b' in
-      if b <> !last_b then (
-        last_b := b;
-        printf "New b: %d\n" b;
-        Out_channel.flush stdout);
-      let f = Hashtbl.find_exn registers 'f' in
-      if f <> !last_f then (
-        last_f := f;
-        printf "New f: %d\n" f;
-        Out_channel.flush stdout);
-      let h = Hashtbl.find_exn registers 'h' in
-      if h <> !last_h then (
-        last_h := h;
-        printf "New h: %d\n" h;
-        Out_channel.flush stdout);
-      if !after_bp then (
-        print_regs ();
-        Out_channel.flush stdout);
-      if !after_bp then (
-        let inp = In_channel.input_char In_channel.stdin in
-        match inp with
-        | None -> ()
-        | Some ch ->
-            if Char.equal ch 'b' then after_bp := false;
-            ())
-      else ();
       loop (ip + res)
   in
   loop 0;
   !mul_counter
 
-(* let result_p1 = run_prog 0 *)
-let result_p2 = run_prog 1
+let result_p1 = run_prog 0
+
+let program_in_ocaml () =
+  let h = ref 0 in
+  let rec b_loop b =
+    if b > 108100 then !h
+    else (
+      printf "b: %d\n" b;
+      Out_channel.flush stdout;
+      for d = 2 to b do
+        for e = 2 to b do
+          if d * e = b then (
+            h := !h + 1;
+            printf "d * e = %d * %d = %d\n" d e (d * e);
+            printf "h: %d\n" !h;
+            printf "\n";
+            Out_channel.flush stdout)
+        done
+      done;
+      b_loop (b + 17))
+  in
+  b_loop 108100
+
+let program_in_ocaml_opt () =
+  let h = ref 0 in
+  let rec b_loop b =
+    if b > 125100 then !h
+    else
+      (* printf "b: %d\n" b; *)
+      let is_composite = ref false in
+      for d = 2 to b - 1 do
+        if b mod d = 0 then
+          is_composite := true (* printf "Found divisor: %d\n" d *)
+      done;
+      if !is_composite then h := !h + 1;
+      (* printf "h: %d\n\n" !h; *)
+      b_loop (b + 17)
+  in
+  b_loop 108100
+
+let result_p2 = program_in_ocaml_opt ()
