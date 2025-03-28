@@ -25,7 +25,7 @@ let solve_p1 () =
   (* print_comps "start " comps; *)
   (* Out_channel.flush stdout; *)
   (* let _ = In_channel.input_char In_channel.stdin in *)
-  let rec loop acc comps ports =
+  let rec loop strength comps ports =
     (* print_comps "comps" comps; *)
     let matching_comps =
       List.filter comps ~f:(fun comp -> fst comp = ports || snd comp = ports)
@@ -34,16 +34,16 @@ let solve_p1 () =
     (* Out_channel.flush stdout; *)
     (* let _ = In_channel.input_char In_channel.stdin in *)
 
-    if List.is_empty matching_comps then acc
+    if List.is_empty matching_comps then strength
     else
       let strengths =
         List.map matching_comps ~f:(fun comp ->
-            let acc' = acc + fst comp + snd comp in
+            let strength' = strength + fst comp + snd comp in
             let comps' = remove comps comp in
             let ports' = if fst comp = ports then snd comp else fst comp in
             (* printf "acc %d, ports %d " acc' ports'; *)
             (* print_comps "comps'" comps'; *)
-            loop acc' comps' ports')
+            loop strength' comps' ports')
       in
       match List.max_elt strengths ~compare:Int.compare with
       | None -> 0
@@ -51,5 +51,34 @@ let solve_p1 () =
   in
   loop 0 comps 0
 
+let solve_p2 () =
+  let comps = List.map aoc_input ~f:parse_line in
+  let longest = ref 0 in
+  let max_strength = ref 0 in
+  let rec loop strength length comps ports =
+    let matching_comps =
+      List.filter comps ~f:(fun comp -> fst comp = ports || snd comp = ports)
+    in
+
+    if List.is_empty matching_comps then (strength, length)
+    else
+      let strengths_lens =
+        List.map matching_comps ~f:(fun comp ->
+            let strength' = strength + fst comp + snd comp in
+            let length' = length + 1 in
+            let comps' = remove comps comp in
+            let ports' = if fst comp = ports then snd comp else fst comp in
+            loop strength' length' comps' ports')
+      in
+      List.iter strengths_lens ~f:(fun s_l ->
+          let s, l = s_l in
+          if l > !longest then (
+            longest := l;
+            max_strength := s);
+          if l = !longest then max_strength := max !max_strength s);
+      (!max_strength, !longest)
+  in
+  loop 0 0 comps 0
+
 let result_p1 = solve_p1 ()
-let result_p2 = 0
+let result_p2 = fst (solve_p2 ())
