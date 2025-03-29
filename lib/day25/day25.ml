@@ -52,5 +52,11 @@ let parse_input lines =
   let states = loop [] (List.drop lines 3) |> Array.of_list in
   (state_of_char start_state, no_of_steps, states)
 
+let solve_p1 () = 
+  let start_state, no_of_steps, states = parse_input aoc_input in
+  let tape = Set.empty (module Int) in
+  let cursor = ref 0 in
+  
+
 let result_p1 = 0
 let result_p2 = 1
