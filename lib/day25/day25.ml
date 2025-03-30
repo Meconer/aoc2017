@@ -53,7 +53,7 @@ let parse_input lines =
   (state_of_char start_state, no_of_steps, states)
 
 let do_action state tape cursor =
-  let curr_val = if Set.mem tape cursor then 0 else 1 in
+  let curr_val = if Set.mem tape cursor then 1 else 0 in
   printf "curr_val: %d\n" curr_val;
   let action = state.(curr_val) in
   printf "action: %d\n" action.write_val;
