@@ -1,6 +1,6 @@
 open Core
 
-let is_example = false
+let is_example = true
 
 let filename =
   if is_example then "lib/day25/example.txt" else "lib/day25/input.txt"
@@ -52,11 +52,38 @@ let parse_input lines =
   let states = loop [] (List.drop lines 3) |> Array.of_list in
   (state_of_char start_state, no_of_steps, states)
 
-let solve_p1 () = 
+let do_action state tape cursor =
+  let curr_val = if Set.mem tape cursor then 0 else 1 in
+  printf "curr_val: %d\n" curr_val;
+  let action = state.(curr_val) in
+  printf "action: %d\n" action.write_val;
+  let tape =
+    if action.write_val = 1 then Set.add tape cursor else Set.remove tape cursor
+  in
+  printf "do_action: ";
+  List.iter (Set.to_list tape) ~f:(fun el -> printf "%d " el);
+  printf "\n";
+  let cursor = cursor + action.move in
+  (action.next_state, tape, cursor)
+
+let print_state tape cursor count =
+  printf "Cnt: %d  - Cur: %d\n" count cursor;
+  List.iter (Set.to_list tape) ~f:(fun el -> printf "%d " el);
+  printf "\n"
+
+let solve_p1 () =
   let start_state, no_of_steps, states = parse_input aoc_input in
+  printf "start_state_no %d\n" start_state;
   let tape = Set.empty (module Int) in
-  let cursor = ref 0 in
-  
+  let rec loop tape cursor state count =
+    if count = no_of_steps then tape
+    else
+      let next_state_no, tape, cursor = do_action state tape cursor in
+      let next_state = states.(next_state_no) in
+      print_state tape cursor count;
+      loop tape cursor next_state (count + 1)
+  in
+  loop tape 0 states.(start_state) 0
 
 let result_p1 = 0
 let result_p2 = 1
