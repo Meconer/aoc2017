@@ -1,6 +1,6 @@
 open Core
 
-let is_example = true
+let is_example = false
 
 let filename =
   if is_example then "lib/day25/example.txt" else "lib/day25/input.txt"
@@ -54,15 +54,10 @@ let parse_input lines =
 
 let do_action state tape cursor =
   let curr_val = if Set.mem tape cursor then 1 else 0 in
-  printf "curr_val: %d\n" curr_val;
   let action = state.(curr_val) in
-  printf "action: %d\n" action.write_val;
   let tape =
     if action.write_val = 1 then Set.add tape cursor else Set.remove tape cursor
   in
-  printf "do_action: ";
-  List.iter (Set.to_list tape) ~f:(fun el -> printf "%d " el);
-  printf "\n";
   let cursor = cursor + action.move in
   (action.next_state, tape, cursor)
 
@@ -73,17 +68,17 @@ let print_state tape cursor count =
 
 let solve_p1 () =
   let start_state, no_of_steps, states = parse_input aoc_input in
-  printf "start_state_no %d\n" start_state;
+  (* printf "start_state_no %d\n" start_state; *)
   let tape = Set.empty (module Int) in
   let rec loop tape cursor state count =
     if count = no_of_steps then tape
     else
       let next_state_no, tape, cursor = do_action state tape cursor in
       let next_state = states.(next_state_no) in
-      print_state tape cursor count;
+      (* print_state tape cursor count; *)
       loop tape cursor next_state (count + 1)
   in
-  loop tape 0 states.(start_state) 0
+  let final_tape = loop tape 0 states.(start_state) 0 in
+  Set.length final_tape
 
-let result_p1 = 0
-let result_p2 = 1
+let result_p1 = solve_p1 ()
