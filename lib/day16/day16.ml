@@ -75,13 +75,13 @@ let solve_p2 () =
   in
   let rec find_cycle i =
     loop dance_list;
-    let s = String.of_array p_arr in
-    Printf.printf "%d : %s\n" i s;
+    (* let s = String.of_array p_arr in *)
+    (* Printf.printf "%d : %s\n" i s; *)
     if String.equal (String.of_array p_arr) "abcdefghijklmnop" then i + 1
     else find_cycle (i + 1)
   in
   let cycle = find_cycle 1 in
-  Printf.printf "Cycle : %d\n" cycle;
+  (* Printf.printf "Cycle : %d\n" cycle; *)
   let n = 1_000_000_000 mod cycle in
   for _ = 1 to n do
     loop dance_list
